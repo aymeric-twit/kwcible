@@ -1,0 +1,18 @@
+# Dépendances
+/vendor/
+/node_modules/
+
+# Cache
+/cache/
+
+# Fichiers Composer
+composer.phar
+
+# Chromium
+/chromium-libs/
+
+# Claude
+/.claude/
+
+# Environnement
+.env
