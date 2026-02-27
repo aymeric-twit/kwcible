@@ -1,0 +1,15 @@
+{
+    "slug": "kwcible",
+    "name": "KWCible",
+    "description": "Analyse sémantique SEO de pages web vs mot-clé cible",
+    "version": "1.0.0",
+    "icon": "bi-search",
+    "entry_point": "index.php",
+    "sort_order": 10,
+    "quota_mode": "form_submit",
+    "default_quota": 100,
+    "display_mode": "embedded",
+    "env_keys": [],
+    "languages": [],
+    "routes": []
+}
