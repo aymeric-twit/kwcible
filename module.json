@@ -10,6 +10,7 @@
     "default_quota": 100,
     "display_mode": "embedded",
     "env_keys": [],
+    "api_doc_url": "",
     "languages": [],
     "routes": []
 }
