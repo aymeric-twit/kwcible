@@ -1638,6 +1638,14 @@ function handle_seo_form(): array
         return $data;
     }
 
+    // Quota plateforme
+    if (class_exists('Platform\\Module\\Quota')) {
+        if (!\Platform\Module\Quota::trackerSiDisponible('kwcible')) {
+            $data['error'] = 'Quota mensuel dépassé.';
+            return $data;
+        }
+    }
+
     // 1. Fetch
     $fetch = fetch_page($url);
     $data['fetchInfo'] = $fetch;

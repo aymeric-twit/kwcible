@@ -6,7 +6,7 @@
     "icon": "bi-search",
     "entry_point": "index.php",
     "sort_order": 10,
-    "quota_mode": "form_submit",
+    "quota_mode": "url",
     "default_quota": 100,
     "display_mode": "embedded",
     "env_keys": [],
