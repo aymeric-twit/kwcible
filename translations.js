@@ -1,0 +1,398 @@
+var TRANSLATIONS = {
+    fr: {
+        // Navbar
+        'nav.titre': 'KWCible',
+        'nav.soustitre': 'Analyse sémantique SEO',
+
+        // Formulaire
+        'form.label_url': 'URL à analyser',
+        'form.placeholder_url': 'https://example.com/page-a-analyser',
+        'form.btn_analyser': 'Analyser',
+
+        // Panneau d'aide
+        'help.titre': 'Comment ça marche ?',
+        'help.etape1': 'Entrez l\'URL d\'une page web publique',
+        'help.etape2': 'L\'outil identifie la <strong>requête clé principale</strong>',
+        'help.etape3': 'Diagnostic SEO complet avec recommandations',
+
+        // Erreur
+        'status.erreur_prefix': 'Erreur :',
+
+        // Structure de la page
+        'table.structure_titre': 'Structure de la page',
+        'table.th_element': 'Élément',
+        'table.th_contenu': 'Contenu',
+        'table.th_statut': 'Statut',
+        'table.el_title': 'Title',
+        'table.el_meta_description': 'Meta Description',
+        'table.el_h1': 'H1',
+        'table.el_h2': 'H2',
+        'table.el_h3': 'H3',
+        'table.el_canonical': 'Canonical',
+        'table.el_mots': 'Nombre de mots',
+        'table.el_segments_url': 'Segments URL',
+        'table.aucun_m': '(aucun)',
+        'table.aucune_f': '(aucune)',
+        'table.autres': '+{n} autres',
+
+        // Badges structure
+        'badge.absent_m': 'Absent',
+        'badge.absente_f': 'Absente',
+        'badge.ok': 'OK',
+        'badge.court': 'Court',
+        'badge.tres_court': 'Très court',
+        'badge.car': '{n} car.',
+        'badge.h1_count': '{n} H1',
+
+        // Requête clé principale
+        'kw.titre': 'Requête clé principale',
+        'kw.label': 'Mot-clé principal identifié',
+        'kw.suggest_corrige': 'SUGGEST CORRIGÉ',
+        'kw.suggest_valide': 'SUGGEST VALIDÉ',
+        'kw.etait': 'était : {keyword}',
+        'kw.concurrence': 'Concurrence : {level}',
+        'kw.variantes_titre': 'Variantes secondaires',
+        'kw.debug_h1': 'Debug H1 enrichissement',
+        'kw.debug_suggest': 'Debug Google Suggest (ordre des mots)',
+
+        // Optimisation sémantique
+        'sem.titre': 'Optimisation sémantique',
+        'sem.ics_label': 'Couverture sémantique',
+        'sem.ics_title': 'Indice de Couverture Sémantique — Mesure la présence des termes importants dans les zones stratégiques (Title, H1, H2, Meta, URL, Body). Plus le score est élevé, meilleure est la distribution.',
+        'sem.ics_desc': 'Présence des termes importants dans les zones stratégiques.',
+        'sem.isr_label': 'Sur-répétition',
+        'sem.isr_title': 'Indice de Sur-Répétition — Détecte le keyword stuffing en mesurant la densité excessive des termes dans le contenu. Un score bas indique un contenu naturel.',
+        'sem.isr_no_risk': 'Aucun risque de sur-optimisation détecté.',
+        'sem.isr_warning': 'Attention, certains termes sont trop répétés.',
+        'sem.isr_danger': 'Risque élevé de keyword stuffing.',
+
+        // Tableau termes
+        'term.th_terme': 'Terme',
+        'term.th_score': 'Score',
+        'term.th_zones': 'Zones',
+        'term.th_densite': 'Densité',
+        'term.th_statut': 'Statut',
+        'term.optimal': 'Optimal',
+        'term.sur_optimise': 'Sur-optimisé',
+        'term.sous_optimise': 'Sous-optimisé',
+
+        // Tooltip treemap
+        'treemap.score': 'Score : {score}',
+        'treemap.zones': 'Zones : {zones}',
+        'treemap.densite': 'Densité : {density}%',
+        'treemap.occurrences': 'Occurrences body : {count}',
+
+        // Recommandations sémantiques
+        'semrec.titre': 'Recommandations sémantiques',
+        'semrec.renforcer': 'Termes à renforcer',
+        'semrec.renforcer_msg': 'Ces termes importants ne sont présents que dans une seule zone. Placez-les dans davantage de zones stratégiques pour améliorer votre ICS.',
+        'semrec.reduire': 'Termes à réduire',
+        'semrec.reduire_msg': 'Ces termes sont trop répétés dans le contenu. Remplacez certaines occurrences par des synonymes ou des formulations alternatives pour baisser votre ISR.',
+        'semrec.couverture_faible': 'Couverture sémantique faible',
+        'semrec.couverture_faible_msg': 'Vos termes importants sont concentrés dans peu de zones. Pour un meilleur référencement, intégrez vos mots-clés principaux dans le Title, le H1, au moins un H2 et la meta description.',
+        'semrec.zones_enrichir': 'Zones stratégiques à enrichir',
+        'semrec.bonne_optim': 'Bonne optimisation',
+        'semrec.bonne_optim_msg': '{optimal} termes sur {total} sont correctement optimisés. Votre contenu présente un bon équilibre entre couverture sémantique et naturel.',
+        'semrec.ajouter_dans': 'ajouter dans :',
+        'semrec.densite_actuelle': 'densité actuelle : {density}% (trop élevée)',
+
+        // Diagnostic SEO
+        'diag.titre': 'Diagnostic SEO',
+        'diag.score_global': 'Score SEO global',
+        'diag.points': '{score} / {max} points —',
+        'diag.bon_niveau': 'Bon niveau d\'optimisation.',
+        'diag.partiel': 'Optimisation partielle, des améliorations sont possibles.',
+        'diag.insuffisant': 'Optimisation insuffisante, des actions correctives sont nécessaires.',
+        'diag.pts': '{n} pts',
+
+        // Labels diagnostic
+        'diag.kw_title': 'Keyword dans le Title',
+        'diag.coherence_title_h1': 'Cohérence Title ↔ H1',
+        'diag.kw_meta': 'Keyword dans Meta Description',
+        'diag.kw_url': 'Keyword dans l\'URL',
+        'diag.richesse': 'Richesse sémantique',
+        'diag.unicite_h1': 'Unicité du H1',
+        'diag.longueur_title': 'Longueur du Title',
+        'diag.longueur_meta': 'Longueur Meta Description',
+        'diag.kw_h1': 'Keyword dans le H1',
+        'diag.optim_semantique': 'Optimisation sémantique',
+        'diag.risque_suroptim': 'Risque de sur-optimisation',
+
+        // Messages diagnostic
+        'diag.kw_title_bon': 'Le mot-clé principal est présent dans le titre.',
+        'diag.kw_title_partiel': 'Le titre contient une partie du mot-clé mais pas la correspondance exacte.',
+        'diag.kw_title_absent': 'Le mot-clé principal est absent du titre.',
+        'diag.coherence_bon': 'Le Title et le H1 partagent un champ sémantique cohérent.',
+        'diag.coherence_partiel': 'Le Title et le H1 ont peu de mots-clés en commun.',
+        'diag.coherence_mauvais': 'Le Title et le H1 traitent de sujets différents.',
+        'diag.coherence_manquant': 'Title ou H1 manquant, impossible de vérifier la cohérence.',
+        'diag.meta_absente': 'Aucune meta description définie.',
+        'diag.kw_meta_bon': 'Le mot-clé principal est présent dans la meta description.',
+        'diag.kw_meta_partiel': 'La meta description contient certains mots du keyword.',
+        'diag.kw_meta_absent': 'Le mot-clé est absent de la meta description.',
+        'diag.kw_url_bon': 'Le mot-clé est présent dans l\'URL.',
+        'diag.kw_url_partiel': 'L\'URL contient une partie du mot-clé.',
+        'diag.kw_url_absent': 'Le mot-clé est absent de l\'URL.',
+        'diag.richesse_bon': 'Bon ratio de diversité lexicale ({pct}% mots uniques).',
+        'diag.richesse_partiel': 'Diversité lexicale moyenne ({pct}% mots uniques).',
+        'diag.richesse_mauvais': 'Faible diversité lexicale ({pct}% mots uniques).',
+        'diag.h1_unique': 'Un seul H1, c\'est correct.',
+        'diag.h1_absent': 'Aucun H1 trouvé sur la page.',
+        'diag.h1_multiple': '{n} balises H1 trouvées. Il devrait n\'y en avoir qu\'une seule.',
+        'diag.title_absent': 'Aucun Title défini.',
+        'diag.title_bon': 'Title de {n} caractères (idéal : 30-60).',
+        'diag.title_long': 'Title de {n} caractères, légèrement au-dessus de la limite recommandée (60).',
+        'diag.title_trop_long': 'Title de {n} caractères, trop long (max recommandé : 60).',
+        'diag.meta_bon': 'Meta description de {n} caractères (idéal : 120-160).',
+        'diag.meta_partiel': 'Meta description de {n} caractères.',
+        'diag.meta_mauvais': 'Meta description de {n} caractères (idéal : 120-160).',
+        'diag.kw_h1_bon': 'Le mot-clé principal est présent dans le H1.',
+        'diag.kw_h1_partiel': 'Le H1 contient une partie du mot-clé principal.',
+        'diag.kw_h1_absent': 'Le mot-clé principal est absent du H1.',
+        'diag.kw_h1_manquant': 'Pas de H1 pour vérifier la présence du keyword.',
+        'diag.ics_bon': 'Bonne couverture sémantique (ICS : {pct}%).',
+        'diag.ics_partiel': 'Couverture sémantique partielle (ICS : {pct}%).',
+        'diag.ics_mauvais': 'Couverture sémantique insuffisante (ICS : {pct}%).',
+        'diag.isr_bon': 'Pas de sur-optimisation détectée (ISR : {pct}%).',
+        'diag.isr_partiel': 'Risque modéré de sur-optimisation (ISR : {pct}%).',
+        'diag.isr_mauvais': 'Sur-optimisation détectée (ISR : {pct}%).',
+
+        // Recommandations
+        'reco.titre': 'Recommandations',
+        'reco.tag_actuel': 'Actuel',
+        'reco.tag_propose': 'Proposé',
+        'reco.title_label': 'Title optimisé',
+        'reco.h1_label': 'H1 optimisé',
+        'reco.meta_label': 'Meta description optimisée',
+        'reco.angle_label': 'Angle SEO',
+        'reco.contenu_label': 'Enrichir le contenu',
+        'reco.title_reason_long': 'Le titre actuel dépasse 60 caractères et/ou ne contient pas le keyword principal.',
+        'reco.title_reason_kw': 'Le keyword principal devrait figurer dans le titre pour un meilleur référencement.',
+        'reco.h1_reason_absent': 'Aucun H1 n\'est défini. Ajoutez un H1 contenant le mot-clé principal.',
+        'reco.h1_reason_kw': 'Le H1 actuel ne contient pas le mot-clé principal identifié.',
+        'reco.meta_reason_absent': 'Aucune meta description définie. Elle aide au CTR dans les résultats de recherche.',
+        'reco.meta_reason_kw': 'La meta description ne mentionne pas le keyword principal.',
+        'reco.angle_current': 'Décalage entre Title et H1',
+        'reco.angle_reason': 'Le Title et le H1 ciblent des thématiques différentes, ce qui dilue le signal SEO.',
+        'reco.contenu_reason': 'Un contenu trop court limite les chances de positionnement sur des requêtes compétitives.',
+        'reco.contenu_proposed': 'Viser au minimum 300 mots pour un contenu de qualité, idéalement 800+ mots pour un article informatif.',
+        'reco.mots': '{n} mots',
+
+        // Intention
+        'intent.transactionnelle': 'Transactionnelle',
+        'intent.commerciale': 'Commerciale',
+        'intent.navigationnelle': 'Navigationnelle',
+        'intent.informationnelle': 'Informationnelle',
+
+        // Concurrence
+        'competition.faible': 'Faible',
+        'competition.moyen': 'Moyen',
+        'competition.eleve': 'Élevé',
+
+        // Erreurs
+        'error.url_invalide': 'URL invalide. Veuillez saisir une URL complète (ex: https://example.com/page).',
+        'error.quota_depasse': 'Quota mensuel dépassé.',
+        'error.fetch_impossible': 'Impossible de récupérer la page.',
+
+        // Mots unités
+        'unit.mots': 'mots'
+    },
+    en: {
+        // Navbar
+        'nav.titre': 'KWCible',
+        'nav.soustitre': 'SEO Semantic Analysis',
+
+        // Form
+        'form.label_url': 'URL to analyze',
+        'form.placeholder_url': 'https://example.com/page-to-analyze',
+        'form.btn_analyser': 'Analyze',
+
+        // Help panel
+        'help.titre': 'How does it work?',
+        'help.etape1': 'Enter the URL of a public web page',
+        'help.etape2': 'The tool identifies the <strong>primary target keyword</strong>',
+        'help.etape3': 'Full SEO diagnostic with recommendations',
+
+        // Error
+        'status.erreur_prefix': 'Error:',
+
+        // Page structure
+        'table.structure_titre': 'Page Structure',
+        'table.th_element': 'Element',
+        'table.th_contenu': 'Content',
+        'table.th_statut': 'Status',
+        'table.el_title': 'Title',
+        'table.el_meta_description': 'Meta Description',
+        'table.el_h1': 'H1',
+        'table.el_h2': 'H2',
+        'table.el_h3': 'H3',
+        'table.el_canonical': 'Canonical',
+        'table.el_mots': 'Word Count',
+        'table.el_segments_url': 'URL Segments',
+        'table.aucun_m': '(none)',
+        'table.aucune_f': '(none)',
+        'table.autres': '+{n} more',
+
+        // Structure badges
+        'badge.absent_m': 'Missing',
+        'badge.absente_f': 'Missing',
+        'badge.ok': 'OK',
+        'badge.court': 'Short',
+        'badge.tres_court': 'Very short',
+        'badge.car': '{n} chars',
+        'badge.h1_count': '{n} H1',
+
+        // Primary keyword
+        'kw.titre': 'Primary Target Keyword',
+        'kw.label': 'Identified primary keyword',
+        'kw.suggest_corrige': 'SUGGEST CORRECTED',
+        'kw.suggest_valide': 'SUGGEST VALIDATED',
+        'kw.etait': 'was: {keyword}',
+        'kw.concurrence': 'Competition: {level}',
+        'kw.variantes_titre': 'Secondary variants',
+        'kw.debug_h1': 'Debug H1 enrichment',
+        'kw.debug_suggest': 'Debug Google Suggest (word order)',
+
+        // Semantic optimization
+        'sem.titre': 'Semantic Optimization',
+        'sem.ics_label': 'Semantic Coverage',
+        'sem.ics_title': 'Semantic Coverage Index — Measures the presence of important terms in strategic zones (Title, H1, H2, Meta, URL, Body). The higher the score, the better the distribution.',
+        'sem.ics_desc': 'Presence of important terms in strategic zones.',
+        'sem.isr_label': 'Over-Repetition',
+        'sem.isr_title': 'Over-Repetition Index — Detects keyword stuffing by measuring excessive term density in the content. A low score indicates natural content.',
+        'sem.isr_no_risk': 'No over-optimization risk detected.',
+        'sem.isr_warning': 'Warning, some terms are over-repeated.',
+        'sem.isr_danger': 'High keyword stuffing risk.',
+
+        // Term table
+        'term.th_terme': 'Term',
+        'term.th_score': 'Score',
+        'term.th_zones': 'Zones',
+        'term.th_densite': 'Density',
+        'term.th_statut': 'Status',
+        'term.optimal': 'Optimal',
+        'term.sur_optimise': 'Over-optimized',
+        'term.sous_optimise': 'Under-optimized',
+
+        // Treemap tooltip
+        'treemap.score': 'Score: {score}',
+        'treemap.zones': 'Zones: {zones}',
+        'treemap.densite': 'Density: {density}%',
+        'treemap.occurrences': 'Body occurrences: {count}',
+
+        // Semantic recommendations
+        'semrec.titre': 'Semantic Recommendations',
+        'semrec.renforcer': 'Terms to strengthen',
+        'semrec.renforcer_msg': 'These important terms are only present in one zone. Place them in more strategic zones to improve your SCI.',
+        'semrec.reduire': 'Terms to reduce',
+        'semrec.reduire_msg': 'These terms are over-repeated in the content. Replace some occurrences with synonyms or alternative phrasing to lower your ORI.',
+        'semrec.couverture_faible': 'Low semantic coverage',
+        'semrec.couverture_faible_msg': 'Your important terms are concentrated in few zones. For better SEO, include your main keywords in the Title, H1, at least one H2 and the meta description.',
+        'semrec.zones_enrichir': 'Strategic zones to enrich',
+        'semrec.bonne_optim': 'Good optimization',
+        'semrec.bonne_optim_msg': '{optimal} out of {total} terms are properly optimized. Your content shows a good balance between semantic coverage and natural writing.',
+        'semrec.ajouter_dans': 'add in:',
+        'semrec.densite_actuelle': 'current density: {density}% (too high)',
+
+        // SEO Diagnostic
+        'diag.titre': 'SEO Diagnostic',
+        'diag.score_global': 'Overall SEO Score',
+        'diag.points': '{score} / {max} points —',
+        'diag.bon_niveau': 'Good optimization level.',
+        'diag.partiel': 'Partial optimization, improvements are possible.',
+        'diag.insuffisant': 'Insufficient optimization, corrective actions are needed.',
+        'diag.pts': '{n} pts',
+
+        // Diagnostic labels
+        'diag.kw_title': 'Keyword in Title',
+        'diag.coherence_title_h1': 'Title ↔ H1 Consistency',
+        'diag.kw_meta': 'Keyword in Meta Description',
+        'diag.kw_url': 'Keyword in URL',
+        'diag.richesse': 'Semantic richness',
+        'diag.unicite_h1': 'H1 uniqueness',
+        'diag.longueur_title': 'Title length',
+        'diag.longueur_meta': 'Meta Description length',
+        'diag.kw_h1': 'Keyword in H1',
+        'diag.optim_semantique': 'Semantic optimization',
+        'diag.risque_suroptim': 'Over-optimization risk',
+
+        // Diagnostic messages
+        'diag.kw_title_bon': 'The primary keyword is present in the title.',
+        'diag.kw_title_partiel': 'The title contains part of the keyword but not the exact match.',
+        'diag.kw_title_absent': 'The primary keyword is missing from the title.',
+        'diag.coherence_bon': 'The Title and H1 share a consistent semantic field.',
+        'diag.coherence_partiel': 'The Title and H1 have few keywords in common.',
+        'diag.coherence_mauvais': 'The Title and H1 address different topics.',
+        'diag.coherence_manquant': 'Title or H1 missing, consistency check not possible.',
+        'diag.meta_absente': 'No meta description defined.',
+        'diag.kw_meta_bon': 'The primary keyword is present in the meta description.',
+        'diag.kw_meta_partiel': 'The meta description contains some keyword words.',
+        'diag.kw_meta_absent': 'The keyword is missing from the meta description.',
+        'diag.kw_url_bon': 'The keyword is present in the URL.',
+        'diag.kw_url_partiel': 'The URL contains part of the keyword.',
+        'diag.kw_url_absent': 'The keyword is missing from the URL.',
+        'diag.richesse_bon': 'Good lexical diversity ratio ({pct}% unique words).',
+        'diag.richesse_partiel': 'Average lexical diversity ({pct}% unique words).',
+        'diag.richesse_mauvais': 'Low lexical diversity ({pct}% unique words).',
+        'diag.h1_unique': 'Single H1 tag, correct.',
+        'diag.h1_absent': 'No H1 tag found on the page.',
+        'diag.h1_multiple': '{n} H1 tags found. There should be only one.',
+        'diag.title_absent': 'No Title defined.',
+        'diag.title_bon': 'Title of {n} characters (ideal: 30-60).',
+        'diag.title_long': 'Title of {n} characters, slightly above the recommended limit (60).',
+        'diag.title_trop_long': 'Title of {n} characters, too long (recommended max: 60).',
+        'diag.meta_bon': 'Meta description of {n} characters (ideal: 120-160).',
+        'diag.meta_partiel': 'Meta description of {n} characters.',
+        'diag.meta_mauvais': 'Meta description of {n} characters (ideal: 120-160).',
+        'diag.kw_h1_bon': 'The primary keyword is present in the H1.',
+        'diag.kw_h1_partiel': 'The H1 contains part of the primary keyword.',
+        'diag.kw_h1_absent': 'The primary keyword is missing from the H1.',
+        'diag.kw_h1_manquant': 'No H1 to check keyword presence.',
+        'diag.ics_bon': 'Good semantic coverage (SCI: {pct}%).',
+        'diag.ics_partiel': 'Partial semantic coverage (SCI: {pct}%).',
+        'diag.ics_mauvais': 'Insufficient semantic coverage (SCI: {pct}%).',
+        'diag.isr_bon': 'No over-optimization detected (ORI: {pct}%).',
+        'diag.isr_partiel': 'Moderate over-optimization risk (ORI: {pct}%).',
+        'diag.isr_mauvais': 'Over-optimization detected (ORI: {pct}%).',
+
+        // Recommendations
+        'reco.titre': 'Recommendations',
+        'reco.tag_actuel': 'Current',
+        'reco.tag_propose': 'Proposed',
+        'reco.title_label': 'Optimized Title',
+        'reco.h1_label': 'Optimized H1',
+        'reco.meta_label': 'Optimized Meta Description',
+        'reco.angle_label': 'SEO Angle',
+        'reco.contenu_label': 'Enrich content',
+        'reco.title_reason_long': 'The current title exceeds 60 characters and/or does not contain the primary keyword.',
+        'reco.title_reason_kw': 'The primary keyword should appear in the title for better ranking.',
+        'reco.h1_reason_absent': 'No H1 defined. Add an H1 containing the primary keyword.',
+        'reco.h1_reason_kw': 'The current H1 does not contain the identified primary keyword.',
+        'reco.meta_reason_absent': 'No meta description defined. It helps improve CTR in search results.',
+        'reco.meta_reason_kw': 'The meta description does not mention the primary keyword.',
+        'reco.angle_current': 'Title / H1 mismatch',
+        'reco.angle_reason': 'The Title and H1 target different topics, which dilutes the SEO signal.',
+        'reco.contenu_reason': 'Content that is too short limits ranking chances on competitive queries.',
+        'reco.contenu_proposed': 'Aim for at least 300 words for quality content, ideally 800+ words for an informative article.',
+        'reco.mots': '{n} words',
+
+        // Intent
+        'intent.transactionnelle': 'Transactional',
+        'intent.commerciale': 'Commercial',
+        'intent.navigationnelle': 'Navigational',
+        'intent.informationnelle': 'Informational',
+
+        // Competition
+        'competition.faible': 'Low',
+        'competition.moyen': 'Medium',
+        'competition.eleve': 'High',
+
+        // Errors
+        'error.url_invalide': 'Invalid URL. Please enter a complete URL (e.g. https://example.com/page).',
+        'error.quota_depasse': 'Monthly quota exceeded.',
+        'error.fetch_impossible': 'Unable to fetch the page.',
+
+        // Unit words
+        'unit.mots': 'words'
+    }
+};

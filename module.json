@@ -12,6 +12,6 @@
     "env_keys": [],
     "api_doc_url": "",
     "domain_field": "urlInput",
-    "languages": [],
+    "languages": ["fr", "en"],
     "routes": []
 }
