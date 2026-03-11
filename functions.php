@@ -54,11 +54,59 @@ const INTENT_NAVIGATIONAL = [
 
 // ─── Récupération HTTP (via Puppeteer) ────────────────────────────────────
 
+/**
+ * Résout le chemin absolu de l'exécutable node.
+ * Nécessaire car nvm n'est pas dans le PATH de PHP (shell_exec).
+ */
+function resoudreNode(): string
+{
+    // Variable d'environnement explicite (configurable via .env / boot.php)
+    $envNode = getenv('NODE_BIN');
+    if ($envNode !== false && $envNode !== '' && is_executable($envNode)) {
+        return $envNode;
+    }
+
+    // which node (fonctionne si le PATH inclut nvm)
+    $which = trim((string) shell_exec('which node 2>/dev/null'));
+    if ($which !== '' && is_executable($which)) {
+        return $which;
+    }
+
+    // Chemins courants nvm
+    $home = getenv('HOME') ?: '/root';
+    $nvmDir = getenv('NVM_DIR') ?: $home . '/.nvm';
+    $nvmVersions = $nvmDir . '/versions/node';
+    if (is_dir($nvmVersions)) {
+        $versions = scandir($nvmVersions, SCANDIR_SORT_DESCENDING);
+        if ($versions !== false) {
+            foreach ($versions as $v) {
+                if ($v === '.' || $v === '..') {
+                    continue;
+                }
+                $candidat = $nvmVersions . '/' . $v . '/bin/node';
+                if (is_executable($candidat)) {
+                    return $candidat;
+                }
+            }
+        }
+    }
+
+    // Chemins système classiques
+    foreach (['/usr/local/bin/node', '/usr/bin/node'] as $chemin) {
+        if (is_executable($chemin)) {
+            return $chemin;
+        }
+    }
+
+    return 'node';
+}
+
 function fetch_page(string $url): array
 {
     $script = __DIR__ . '/fetch-page.js';
     $ldPath = __DIR__ . '/chromium-libs';
-    $cmd = 'LD_LIBRARY_PATH=' . escapeshellarg($ldPath) . ' node ' . escapeshellarg($script) . ' ' . escapeshellarg($url) . ' 2>&1';
+    $nodeBin = resoudreNode();
+    $cmd = 'LD_LIBRARY_PATH=' . escapeshellarg($ldPath) . ' ' . escapeshellarg($nodeBin) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($url) . ' 2>&1';
     $output = shell_exec($cmd);
 
     if ($output === null || trim($output) === '') {
