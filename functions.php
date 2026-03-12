@@ -39,17 +39,36 @@ const INTENT_TRANSACTIONAL = [
     'pas cher','meilleur prix','commander','commande','livraison','boutique',
     'magasin','offre','réduction','discount','vente','bon plan','devis',
     'buy','purchase','price','cheap','deal','order','shop','store','sale',
+    'abonnement','réservation','réserver','location','louer','souscrire',
+    'télécharger','download','subscribe','rent','book','coupon','code promo',
+    'gratuit','free trial','essai','forfait','inscription','s\'inscrire',
+    'panier','ajouter au panier','add to cart','checkout','paiement',
 ];
 
 const INTENT_COMMERCIAL = [
     'comparatif','comparateur','avis','test','meilleur','top','classement',
     'versus','vs','review','alternative','quel','quelle','choisir','guide',
     'sélection','recommandation','best','compare','comparison','rating',
+    'analyse','benchmark','différence','lequel','opinion','évaluation',
+    'retour','expérience','fiable','worth','pros cons','avantages',
+    'inconvénients','palmarès','note','notation','tests',
 ];
 
 const INTENT_NAVIGATIONAL = [
     'connexion','login','compte','espace client','mon compte','inscription',
     'contact','accueil','page','site officiel','official','sign in','log in',
+    'adresse','horaire','horaires','téléphone','numéro','service client',
+    'support','aide','faq','app','application','espace personnel',
+];
+
+const INTENT_INFORMATIONAL = [
+    'comment','pourquoi','définition','signification','c\'est quoi',
+    'qu\'est-ce que','explication','meaning','what is','how to',
+    'tutorial','tutoriel','guide complet','étape','étapes',
+    'fonctionnement','principe','histoire','origine','cause',
+    'symptôme','symptômes','exemple','exemples','apprendre',
+    'comprendre','savoir','difference entre','différence entre',
+    'quand','où','combien','quel est','quelle est',
 ];
 
 // ─── Récupération HTTP (via cURL) ─────────────────────────────────────────
@@ -420,6 +439,250 @@ function interroger_google_suggest(string $requete): array
     usleep(200000);
 
     return $suggestions;
+}
+
+// ─── API Sistrix ──────────────────────────────────────────────────────────
+
+/**
+ * Interroge l'API Sistrix pour obtenir intent, métriques et SERP features d'un keyword.
+ * Retourne null si la clé API n'est pas configurée ou en cas d'erreur.
+ *
+ * @return array{intent: array, metrics: array, serp_features: array}|null
+ */
+function interroger_sistrix(string $keyword, string $country = 'fr'): ?array
+{
+    $apiKey = getenv('SISTRIX_API_KEY');
+    if ($apiKey === false || $apiKey === '') {
+        return null;
+    }
+
+    // Cache fichier (24h)
+    $cacheDir = __DIR__ . '/cache/sistrix';
+    if (!is_dir($cacheDir)) {
+        mkdir($cacheDir, 0755, true);
+    }
+    $cacheKey = md5($keyword . '|' . $country);
+    $cacheFichier = $cacheDir . '/' . $cacheKey . '.json';
+
+    if (is_file($cacheFichier) && (time() - filemtime($cacheFichier)) < 86400) {
+        $cached = json_decode(file_get_contents($cacheFichier), true);
+        if (is_array($cached)) {
+            return $cached;
+        }
+    }
+
+    $baseUrl = 'https://api.sistrix.com/';
+    $params = http_build_query(['api_key' => $apiKey, 'kw' => $keyword, 'country' => $country, 'format' => 'json']);
+
+    // 3 appels API : intent, metrics, SERP features
+    $intentData = appeler_sistrix_endpoint($baseUrl . 'keyword.seo.searchintent?' . $params);
+    $metricsData = appeler_sistrix_endpoint($baseUrl . 'keyword.seo.metrics?' . $params);
+    $serpData = appeler_sistrix_endpoint($baseUrl . 'keyword.seo.serpfeatures?' . $params);
+
+    // Si l'appel intent échoue, tout est compromis
+    if ($intentData === null) {
+        return null;
+    }
+
+    $resultat = [
+        'intent'        => extraire_sistrix_intent($intentData),
+        'metrics'       => extraire_sistrix_metrics($metricsData),
+        'serp_features' => extraire_sistrix_serp_features($serpData),
+    ];
+
+    // Mise en cache
+    file_put_contents($cacheFichier, json_encode($resultat, JSON_UNESCAPED_UNICODE));
+
+    return $resultat;
+}
+
+/**
+ * Appelle un endpoint Sistrix via cURL.
+ *
+ * @return array|null Données JSON décodées ou null en cas d'erreur
+ */
+function appeler_sistrix_endpoint(string $url): ?array
+{
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_HTTPHEADER     => ['Accept: application/json'],
+    ]);
+
+    $reponse = curl_exec($ch);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($reponse === false || $httpCode !== 200) {
+        return null;
+    }
+
+    $data = json_decode($reponse, true);
+
+    return is_array($data) ? $data : null;
+}
+
+/**
+ * Extrait les scores d'intention depuis la réponse Sistrix.
+ *
+ * @return array{know: int, do: int, website: int, visit: int}
+ */
+function extraire_sistrix_intent(?array $data): array
+{
+    $defaut = ['know' => 0, 'do' => 0, 'website' => 0, 'visit' => 0];
+
+    if ($data === null || empty($data['answer'])) {
+        return $defaut;
+    }
+
+    // Sistrix retourne les intents dans answer[0].searchintent ou similaire
+    foreach ($data['answer'] as $item) {
+        if (isset($item['searchintent'])) {
+            return [
+                'know'    => (int) ($item['searchintent']['know'] ?? 0),
+                'do'      => (int) ($item['searchintent']['do'] ?? 0),
+                'website' => (int) ($item['searchintent']['website'] ?? 0),
+                'visit'   => (int) ($item['searchintent']['visit'] ?? 0),
+            ];
+        }
+        // Format alternatif : clés directes dans l'item
+        if (isset($item['know']) || isset($item['do'])) {
+            return [
+                'know'    => (int) ($item['know'] ?? 0),
+                'do'      => (int) ($item['do'] ?? 0),
+                'website' => (int) ($item['website'] ?? 0),
+                'visit'   => (int) ($item['visit'] ?? 0),
+            ];
+        }
+    }
+
+    return $defaut;
+}
+
+/**
+ * Extrait les métriques SEO depuis la réponse Sistrix.
+ *
+ * @return array{traffic: int, cpc: float, competition: int}
+ */
+function extraire_sistrix_metrics(?array $data): array
+{
+    $defaut = ['traffic' => 0, 'cpc' => 0.0, 'competition' => 0];
+
+    if ($data === null || empty($data['answer'])) {
+        return $defaut;
+    }
+
+    foreach ($data['answer'] as $item) {
+        return [
+            'traffic'     => (int) ($item['traffic'] ?? $item['search.volume'] ?? $item['volume'] ?? 0),
+            'cpc'         => (float) ($item['cpc'] ?? $item['cpc.value'] ?? 0.0),
+            'competition' => (int) ($item['competition'] ?? $item['comp'] ?? 0),
+        ];
+    }
+
+    return $defaut;
+}
+
+/**
+ * Extrait les SERP features depuis la réponse Sistrix.
+ *
+ * @return array<string, bool>
+ */
+function extraire_sistrix_serp_features(?array $data): array
+{
+    $features = [
+        'featured_snippet'  => false,
+        'people_also_ask'   => false,
+        'local_pack'        => false,
+        'shopping'          => false,
+        'images'            => false,
+        'videos'            => false,
+        'knowledge_panel'   => false,
+        'sitelinks'         => false,
+    ];
+
+    if ($data === null || empty($data['answer'])) {
+        return $features;
+    }
+
+    // Mapping des noms Sistrix vers nos clés normalisées
+    $mapping = [
+        'featured snippet'  => 'featured_snippet',
+        'featured_snippet'  => 'featured_snippet',
+        'people also ask'   => 'people_also_ask',
+        'people_also_ask'   => 'people_also_ask',
+        'local pack'        => 'local_pack',
+        'local_pack'        => 'local_pack',
+        'shopping'          => 'shopping',
+        'product listing'   => 'shopping',
+        'image pack'        => 'images',
+        'images'            => 'images',
+        'image'             => 'images',
+        'video'             => 'videos',
+        'videos'            => 'videos',
+        'knowledge panel'   => 'knowledge_panel',
+        'knowledge_panel'   => 'knowledge_panel',
+        'sitelinks'         => 'sitelinks',
+        'sitelink'          => 'sitelinks',
+    ];
+
+    foreach ($data['answer'] as $item) {
+        $nom = mb_strtolower($item['feature'] ?? $item['type'] ?? $item['name'] ?? '');
+        if (isset($mapping[$nom])) {
+            $features[$mapping[$nom]] = true;
+        }
+    }
+
+    return $features;
+}
+
+/**
+ * Convertit les scores d'intention Sistrix (Know/Do/Website/Visit) vers le format KWCible.
+ */
+function detect_intent_sistrix(array $sistrixData): array
+{
+    $intent = $sistrixData['intent'];
+
+    // Mapping Sistrix → KWCible
+    $scores = [
+        'informationnelle' => $intent['know'],
+        'transactionnelle' => $intent['do'],
+        'navigationnelle'  => $intent['website'],
+        'commerciale'      => $intent['visit'],
+    ];
+
+    arsort($scores);
+    $primary = array_key_first($scores);
+
+    return [
+        'type'   => $primary,
+        'label'  => ucfirst($primary),
+        'score'  => $scores[$primary],
+        'source' => 'sistrix',
+        'scores' => $scores,
+    ];
+}
+
+/**
+ * Estime la concurrence via les données Sistrix (plus fiable que l'heuristique locale).
+ */
+function estimate_competition_sistrix(array $sistrixData): array
+{
+    $comp = $sistrixData['metrics']['competition'] ?? 50;
+    $cpc = $sistrixData['metrics']['cpc'] ?? 0.0;
+
+    if ($comp >= 70 || $cpc >= 3.0) {
+        return ['level' => 'élevé', 'label' => 'Élevé', 'color' => '#ef4444', 'index' => $comp, 'cpc' => $cpc];
+    }
+
+    if ($comp >= 30) {
+        return ['level' => 'moyen', 'label' => 'Moyen', 'color' => '#f97316', 'index' => $comp, 'cpc' => $cpc];
+    }
+
+    return ['level' => 'faible', 'label' => 'Faible', 'color' => '#22c55e', 'index' => $comp, 'cpc' => $cpc];
 }
 
 /**
@@ -1093,11 +1356,15 @@ function analyze_keywords(array $parsed): array
     $primaryKw = $suggestResult['keyword'];
     $suggestDebug = $suggestResult['suggest_debug'];
 
-    // Intention de recherche
-    $intent = detect_intent($primaryKw, $parsed);
-
-    // Estimation concurrence
-    $competition = estimate_competition($primaryKw);
+    // Intention de recherche et concurrence : Sistrix prioritaire, fallback local
+    $sistrix = interroger_sistrix($primaryKw);
+    if ($sistrix !== null) {
+        $intent = detect_intent_sistrix($sistrix);
+        $competition = estimate_competition_sistrix($sistrix);
+    } else {
+        $intent = detect_intent($primaryKw, $parsed);
+        $competition = estimate_competition($primaryKw);
+    }
 
     return [
         'primary_keyword' => $primaryKw,
@@ -1105,6 +1372,7 @@ function analyze_keywords(array $parsed): array
         'variants'        => $variants,
         'intent'          => $intent,
         'competition'     => $competition,
+        'sistrix'         => $sistrix,
         'all_scores'      => array_slice($filtered, 0, 20, true),
         'soseo'           => round($soseo, 1),
         'dseo'            => round($dseo, 1),
@@ -1116,8 +1384,6 @@ function analyze_keywords(array $parsed): array
 
 function detect_intent(string $keyword, array $parsed): array
 {
-    $allText = mb_strtolower($keyword . ' ' . $parsed['title'] . ' ' . implode(' ', $parsed['h1']));
-
     $scores = [
         'transactionnelle' => 0,
         'commerciale'      => 0,
@@ -1125,37 +1391,106 @@ function detect_intent(string $keyword, array $parsed): array
         'informationnelle' => 0,
     ];
 
-    foreach (INTENT_TRANSACTIONAL as $w) {
-        if (str_contains($allText, $w)) $scores['transactionnelle'] += 2;
-    }
-    foreach (INTENT_COMMERCIAL as $w) {
-        if (str_contains($allText, $w)) $scores['commerciale'] += 2;
-    }
-    foreach (INTENT_NAVIGATIONAL as $w) {
-        if (str_contains($allText, $w)) $scores['navigationnelle'] += 2;
+    // Pondération par zone : le keyword pèse plus que le title, qui pèse plus que le H1
+    $zones = [
+        ['text' => mb_strtolower($keyword),                        'poids' => 3],
+        ['text' => mb_strtolower($parsed['title'] ?? ''),          'poids' => 2],
+        ['text' => mb_strtolower(implode(' ', $parsed['h1'])),     'poids' => 1],
+        ['text' => mb_strtolower($parsed['meta_description'] ?? ''), 'poids' => 1],
+    ];
+
+    $listes = [
+        'transactionnelle' => INTENT_TRANSACTIONAL,
+        'commerciale'      => INTENT_COMMERCIAL,
+        'navigationnelle'  => INTENT_NAVIGATIONAL,
+        'informationnelle' => INTENT_INFORMATIONAL,
+    ];
+
+    foreach ($zones as $zone) {
+        if ($zone['text'] === '') {
+            continue;
+        }
+        foreach ($listes as $type => $mots) {
+            foreach ($mots as $w) {
+                if (str_contains($zone['text'], $w)) {
+                    $scores[$type] += $zone['poids'];
+                }
+            }
+        }
     }
 
-    // Heuristiques supplémentaires
-    if (preg_match('/comment|guide|tutoriel|définition|qu.est.ce|pourquoi|explication/i', $allText)) {
+    // Heuristiques structurelles sur l'URL
+    $urlLower = mb_strtolower($parsed['url'] ?? '');
+
+    if (preg_match('#/(blog|article|guide|faq|wiki|actualit|news|learn)/#', $urlLower)) {
         $scores['informationnelle'] += 3;
     }
-    if (preg_match('/liste|top \d|meilleur|classement|comparatif/i', $allText)) {
+    if (preg_match('#/(produit|product|shop|boutique|acheter|buy|store|panier|cart)/#', $urlLower)) {
+        $scores['transactionnelle'] += 3;
+    }
+    if (preg_match('#/(avis|comparatif|test|review|versus|compare|best)/#', $urlLower)) {
+        $scores['commerciale'] += 3;
+    }
+
+    // Heuristiques sur le keyword
+    $kwLower = mb_strtolower($keyword);
+
+    // Question → informationnelle
+    if (preg_match('/^(comment|pourquoi|qu.est.ce|c.est quoi|quand|combien|how|what|why|when)/i', $kwLower)) {
+        $scores['informationnelle'] += 4;
+    }
+
+    // Comparaison → commerciale
+    if (preg_match('/\b(vs|versus|ou)\b/', $kwLower)) {
+        $scores['commerciale'] += 3;
+    }
+
+    // Chiffres (top 10, 5 meilleurs) → commerciale
+    if (preg_match('/\b(top \d|^\d+ (meilleur|best))/', $kwLower)) {
         $scores['commerciale'] += 2;
     }
 
-    // Si aucun signal clair, défaut = informationnelle
+    // Mot unique court (probable marque) → navigationnelle
+    $kwWords = explode(' ', trim($keyword));
+    if (count($kwWords) === 1 && mb_strlen($keyword) <= 15) {
+        $scores['navigationnelle'] += 2;
+    }
+
+    // Fallback structurel (au lieu du +1 informationnelle aveugle)
     $max = max($scores);
     if ($max === 0) {
-        $scores['informationnelle'] = 1;
+        $wordCount = $parsed['word_count'] ?? 0;
+        $nbH2 = count($parsed['h2'] ?? []);
+
+        if ($wordCount > 1000 && $nbH2 >= 3) {
+            $scores['informationnelle'] += 2;
+        } elseif ($wordCount < 300) {
+            $scores['transactionnelle'] += 1;
+        }
+        // Si toujours 0, on laisse indéterminé plutôt que de forcer
     }
 
     arsort($scores);
     $primary = array_key_first($scores);
+    $maxScore = $scores[$primary];
+
+    // Si aucun signal du tout
+    if ($maxScore === 0) {
+        return [
+            'type'   => 'indéterminé',
+            'label'  => 'Indéterminé',
+            'score'  => 0,
+            'source' => 'local',
+            'scores' => $scores,
+        ];
+    }
 
     return [
-        'type'  => $primary,
-        'label' => ucfirst($primary),
-        'score' => $scores[$primary],
+        'type'   => $primary,
+        'label'  => ucfirst($primary),
+        'score'  => $maxScore,
+        'source' => 'local',
+        'scores' => $scores,
     ];
 }
 

@@ -274,6 +274,7 @@ $fetchInfo       = $view['fetchInfo'];
                             'commerciale' => 'intent.commerciale',
                             'navigationnelle' => 'intent.navigationnelle',
                             'informationnelle' => 'intent.informationnelle',
+                            'indéterminé' => 'intent.indetermine',
                         ];
                         $intentI18nKey = $intentI18nMap[$keywords['intent']['type']] ?? '';
                         // Mapper le niveau de concurrence vers la clé i18n
@@ -283,14 +284,106 @@ $fetchInfo       = $view['fetchInfo'];
                             'élevé' => 'competition.eleve',
                         ];
                         $compI18nKey = $compI18nMap[$keywords['competition']['level']] ?? '';
+                        $intentSource = $keywords['intent']['source'] ?? 'local';
                         ?>
                         <span class="kw-intent" data-i18n="<?= htmlspecialchars($intentI18nKey) ?>">
                             <?= htmlspecialchars($keywords['intent']['label']) ?>
                         </span>
+                        <?php if ($intentSource === 'sistrix'): ?>
+                            <span class="intent-source-badge" data-i18n="sistrix.source">SISTRIX</span>
+                        <?php endif; ?>
                         <span class="kw-competition" style="background: <?= htmlspecialchars($keywords['competition']['color']) ?>20; color: <?= htmlspecialchars($keywords['competition']['color']) ?>" data-i18n="kw.concurrence" data-i18n-params='<?= htmlspecialchars(json_encode(['level' => $keywords['competition']['label']])) ?>'>
                             Concurrence : <?= htmlspecialchars($keywords['competition']['label']) ?>
                         </span>
                     </div>
+
+                    <?php if (!empty($keywords['sistrix'])): ?>
+                    <!-- Données Sistrix -->
+                    <div class="sistrix-data mt-3">
+                        <?php
+                        $sistrixIntent = $keywords['sistrix']['intent'] ?? [];
+                        $sistrixMetrics = $keywords['sistrix']['metrics'] ?? [];
+                        $sistrixSerp = $keywords['sistrix']['serp_features'] ?? [];
+                        ?>
+
+                        <?php if (!empty($sistrixIntent)): ?>
+                        <!-- Barre de répartition intent -->
+                        <div class="mb-3">
+                            <div class="sistrix-section-label" data-i18n="sistrix.repartition_intent">Répartition de l'intention</div>
+                            <div class="intent-breakdown">
+                                <?php
+                                $intentColors = [
+                                    'know' => '#3b82f6',
+                                    'do' => '#ef4444',
+                                    'website' => '#8b5cf6',
+                                    'visit' => '#f59e0b',
+                                ];
+                                $intentLabels = [
+                                    'know' => 'Know',
+                                    'do' => 'Do',
+                                    'website' => 'Website',
+                                    'visit' => 'Visit',
+                                ];
+                                foreach ($sistrixIntent as $type => $pct):
+                                    if ($pct <= 0) continue;
+                                    $color = $intentColors[$type] ?? '#94a3b8';
+                                ?>
+                                    <div class="intent-breakdown-segment" style="width: <?= $pct ?>%; background: <?= $color ?>;" title="<?= htmlspecialchars($intentLabels[$type] ?? $type) ?>: <?= $pct ?>%"></div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="intent-breakdown-legend">
+                                <?php foreach ($sistrixIntent as $type => $pct):
+                                    if ($pct <= 0) continue;
+                                    $color = $intentColors[$type] ?? '#94a3b8';
+                                ?>
+                                    <span class="intent-legend-item">
+                                        <span class="intent-legend-dot" style="background: <?= $color ?>;"></span>
+                                        <?= htmlspecialchars($intentLabels[$type] ?? $type) ?> <strong><?= $pct ?>%</strong>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($sistrixMetrics)): ?>
+                        <!-- Métriques Sistrix -->
+                        <div class="sistrix-metrics">
+                            <?php if (isset($sistrixMetrics['traffic'])): ?>
+                            <div class="sistrix-metric">
+                                <span class="sistrix-metric-label" data-i18n="sistrix.volume">Volume mensuel</span>
+                                <span class="sistrix-metric-value"><?= number_format($sistrixMetrics['traffic'], 0, ',', ' ') ?></span>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (isset($sistrixMetrics['cpc'])): ?>
+                            <div class="sistrix-metric">
+                                <span class="sistrix-metric-label" data-i18n="sistrix.cpc">CPC</span>
+                                <span class="sistrix-metric-value"><?= number_format($sistrixMetrics['cpc'], 2, ',', ' ') ?> €</span>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (isset($sistrixMetrics['competition'])): ?>
+                            <div class="sistrix-metric">
+                                <span class="sistrix-metric-label" data-i18n="sistrix.competition_index">Concurrence Sistrix</span>
+                                <span class="sistrix-metric-value"><?= $sistrixMetrics['competition'] ?> / 100</span>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($sistrixSerp)): ?>
+                        <!-- SERP Features -->
+                        <div class="mt-2">
+                            <div class="sistrix-section-label" data-i18n="sistrix.serp_features">SERP Features</div>
+                            <div class="serp-features-list">
+                                <?php foreach ($sistrixSerp as $feature => $actif):
+                                    if (!$actif) continue;
+                                ?>
+                                    <span class="serp-feature-badge"><?= htmlspecialchars($feature) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
 
                 <?php if (!empty($keywords['h1_debug'])): ?>

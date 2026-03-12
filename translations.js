@@ -183,6 +183,15 @@ var TRANSLATIONS = {
         'intent.commerciale': 'Commerciale',
         'intent.navigationnelle': 'Navigationnelle',
         'intent.informationnelle': 'Informationnelle',
+        'intent.indetermine': 'Indéterminé',
+
+        // Sistrix
+        'sistrix.source': 'SISTRIX',
+        'sistrix.repartition_intent': 'Répartition de l\'intention',
+        'sistrix.volume': 'Volume mensuel',
+        'sistrix.cpc': 'CPC',
+        'sistrix.competition_index': 'Concurrence Sistrix',
+        'sistrix.serp_features': 'SERP Features',
 
         // Concurrence
         'competition.faible': 'Faible',
@@ -381,6 +390,15 @@ var TRANSLATIONS = {
         'intent.commerciale': 'Commercial',
         'intent.navigationnelle': 'Navigational',
         'intent.informationnelle': 'Informational',
+        'intent.indetermine': 'Undetermined',
+
+        // Sistrix
+        'sistrix.source': 'SISTRIX',
+        'sistrix.repartition_intent': 'Intent breakdown',
+        'sistrix.volume': 'Monthly volume',
+        'sistrix.cpc': 'CPC',
+        'sistrix.competition_index': 'Sistrix competition',
+        'sistrix.serp_features': 'SERP Features',
 
         // Competition
         'competition.faible': 'Low',
