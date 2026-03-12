@@ -52,85 +52,66 @@ const INTENT_NAVIGATIONAL = [
     'contact','accueil','page','site officiel','official','sign in','log in',
 ];
 
-// ─── Récupération HTTP (via Puppeteer) ────────────────────────────────────
+// ─── Récupération HTTP (via cURL) ─────────────────────────────────────────
 
 /**
- * Résout le chemin absolu de l'exécutable node.
- * Nécessaire car nvm n'est pas dans le PATH de PHP (shell_exec).
+ * Récupère le HTML d'une page via cURL.
+ * Suit les redirections, simule un navigateur réel via User-Agent et headers.
+ *
+ * @return array{status: string, html: string, finalUrl: string, httpCode: int, error?: string}
  */
-function resoudreNode(): string
-{
-    // Variable d'environnement explicite (configurable via .env / boot.php)
-    $envNode = getenv('NODE_BIN');
-    if ($envNode !== false && $envNode !== '' && is_executable($envNode)) {
-        return $envNode;
-    }
-
-    // which node (fonctionne si le PATH inclut nvm)
-    $which = trim((string) shell_exec('which node 2>/dev/null'));
-    if ($which !== '' && is_executable($which)) {
-        return $which;
-    }
-
-    // Chemins courants nvm
-    $home = getenv('HOME') ?: '/root';
-    $nvmDir = getenv('NVM_DIR') ?: $home . '/.nvm';
-    $nvmVersions = $nvmDir . '/versions/node';
-    if (is_dir($nvmVersions)) {
-        $versions = scandir($nvmVersions, SCANDIR_SORT_DESCENDING);
-        if ($versions !== false) {
-            foreach ($versions as $v) {
-                if ($v === '.' || $v === '..') {
-                    continue;
-                }
-                $candidat = $nvmVersions . '/' . $v . '/bin/node';
-                if (is_executable($candidat)) {
-                    return $candidat;
-                }
-            }
-        }
-    }
-
-    // Chemins système classiques
-    foreach (['/usr/local/bin/node', '/usr/bin/node'] as $chemin) {
-        if (is_executable($chemin)) {
-            return $chemin;
-        }
-    }
-
-    return 'node';
-}
-
 function fetch_page(string $url): array
 {
-    $script = __DIR__ . '/fetch-page.js';
-    $ldPath = __DIR__ . '/chromium-libs';
-    $nodeBin = resoudreNode();
-    $cmd = 'LD_LIBRARY_PATH=' . escapeshellarg($ldPath) . ' ' . escapeshellarg($nodeBin) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($url) . ' 2>&1';
-    $output = shell_exec($cmd);
+    $ch = curl_init();
 
-    if ($output === null || trim($output) === '') {
-        return ['status' => 'error', 'html' => '', 'finalUrl' => $url, 'httpCode' => 0, 'error' => 'Puppeteer : aucune sortie (node introuvable ou crash)'];
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS      => 10,
+        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_ENCODING       => '',  // Accepte gzip, deflate, br
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_HTTPHEADER     => [
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language: fr-FR,fr;q=0.9,en;q=0.8',
+            'Cache-Control: no-cache',
+        ],
+        CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    ]);
+
+    $html = curl_exec($ch);
+    $erreur = curl_error($ch);
+    $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) ?: $url;
+
+    curl_close($ch);
+
+    if ($html === false || $erreur !== '') {
+        return [
+            'status'   => 'error',
+            'html'     => '',
+            'finalUrl' => $finalUrl,
+            'httpCode' => $httpCode,
+            'error'    => 'cURL : ' . ($erreur ?: 'aucune réponse'),
+        ];
     }
 
-    $data = json_decode($output, true);
-    if (!is_array($data) || !isset($data['status'])) {
-        return ['status' => 'error', 'html' => '', 'finalUrl' => $url, 'httpCode' => 0, 'error' => 'Puppeteer : JSON invalide — ' . mb_substr($output, 0, 200)];
-    }
-
-    if ($data['status'] !== 'ok') {
-        return ['status' => 'error', 'html' => '', 'finalUrl' => $url, 'httpCode' => 0, 'error' => 'Puppeteer : ' . ($data['error'] ?? 'erreur inconnue')];
-    }
-
-    $httpCode = $data['httpCode'] ?? 0;
     if ($httpCode >= 400) {
-        return ['status' => 'error', 'html' => '', 'finalUrl' => $data['finalUrl'] ?? $url, 'httpCode' => $httpCode, 'error' => "Erreur HTTP $httpCode"];
+        return [
+            'status'   => 'error',
+            'html'     => '',
+            'finalUrl' => $finalUrl,
+            'httpCode' => $httpCode,
+            'error'    => "Erreur HTTP {$httpCode}",
+        ];
     }
 
     return [
         'status'   => 'ok',
-        'html'     => $data['html'] ?? '',
-        'finalUrl' => $data['finalUrl'] ?? $url,
+        'html'     => $html,
+        'finalUrl' => $finalUrl,
         'httpCode' => $httpCode,
     ];
 }
