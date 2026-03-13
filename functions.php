@@ -479,6 +479,11 @@ function interroger_sistrix(string $keyword, string $country = 'fr'): ?array
     $metricsData = appeler_sistrix_endpoint($baseUrl . 'keyword.seo.metrics?' . $params);
     $serpData = appeler_sistrix_endpoint($baseUrl . 'keyword.seo.serpfeatures?' . $params);
 
+    // Tracker les 3 appels API Sistrix
+    if (class_exists('Platform\\Module\\ApiCreditsTracker')) {
+        \Platform\Module\ApiCreditsTracker::tracker('SISTRIX_API_KEY', 3);
+    }
+
     // Si l'appel intent échoue, tout est compromis
     if ($intentData === null) {
         return null;

@@ -9,9 +9,16 @@
     "quota_mode": "url",
     "default_quota": 100,
     "display_mode": "embedded",
-    "env_keys": ["SISTRIX_API_KEY"],
+    "env_keys": [
+        "SISTRIX_API_KEY"
+    ],
     "api_doc_url": "",
     "domain_field": "urlInput",
-    "languages": ["fr", "en"],
+    "languages": [
+        "fr",
+        "en"
+    ],
+    "api_credits_period": "hebdomadaire",
+    "api_credits_default": 10000,
     "routes": []
 }
