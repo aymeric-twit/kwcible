@@ -35,6 +35,8 @@ $fetchInfo       = $view['fetchInfo'];
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -81,23 +83,37 @@ $fetchInfo       = $view['fetchInfo'];
                     </div>
                     <div class="col-lg-4" id="helpPanel">
                         <div class="config-help-panel">
-                            <div class="help-title mb-2">
+                            <div class="help-title mb-2" data-i18n="help.titre_comment">
                                 <i class="bi bi-info-circle me-1"></i> Comment ça marche
                             </div>
                             <ul>
-                                <li><strong>URL de la page</strong> : saisissez l'URL d'une page web à analyser.</li>
-                                <li><strong>Analyse sémantique</strong> : l'outil identifie le mot-clé principal détecté sur la page.</li>
-                                <li><strong>Diagnostic SEO</strong> : balises title/meta, structure Hn, densité de mots-clés, maillage interne.</li>
-                                <li><strong>Recommandations</strong> : suggestions d'optimisation concrètes et priorisées.</li>
+                                <li data-i18n="help.etape_url"><strong>URL de la page</strong> : saisissez l'URL d'une page web publique à analyser.</li>
+                                <li data-i18n="help.etape_keyword"><strong>Détection automatique</strong> : l'outil identifie la <strong>requête clé principale</strong> ciblée par la page.</li>
+                                <li data-i18n="help.etape_intent"><strong>Intention de recherche</strong> : analyse via Sistrix (si configuré) ou heuristiques locales.</li>
+                                <li data-i18n="help.etape_diag"><strong>Diagnostic SEO</strong> : title, meta, structure Hn, densité, couverture sémantique, maillage interne.</li>
+                                <li data-i18n="help.etape_reco"><strong>Recommandations</strong> : suggestions d'optimisation concrètes et priorisées.</li>
                             </ul>
                             <hr>
-                            <div class="help-title mb-2">
+                            <div class="help-title mb-0" role="button" data-bs-toggle="collapse" data-bs-target="#helpFonctionnalites" aria-expanded="false" data-i18n="help.titre_fonctionnalites">
+                                <i class="bi bi-lightbulb me-1"></i> Fonctionnalités <i class="bi bi-chevron-down help-chevron ms-1"></i>
+                            </div>
+                            <div class="collapse" id="helpFonctionnalites">
+                                <ul class="mt-2">
+                                    <li data-i18n="help.fonc_semantic"><strong>Couverture sémantique (ICS)</strong> : mesure la présence des termes importants dans les zones stratégiques.</li>
+                                    <li data-i18n="help.fonc_stuffing"><strong>Sur-répétition (ISR)</strong> : détecte le keyword stuffing et les densités excessives.</li>
+                                    <li data-i18n="help.fonc_sistrix"><strong>Données Sistrix</strong> : volume de recherche, CPC, SERP features, intention (si clé API configurée).</li>
+                                    <li data-i18n="help.fonc_suggest"><strong>Google Suggest</strong> : validation et correction du mot-clé via l'autocomplétion Google.</li>
+                                    <li data-i18n="help.fonc_score"><strong>Score SEO</strong> : évaluation globale sur 100 points avec diagnostic détaillé par critère.</li>
+                                </ul>
+                            </div>
+                            <hr>
+                            <div class="help-title mb-2" data-i18n="help.titre_quota">
                                 <i class="bi bi-speedometer2 me-1"></i> Quota
                             </div>
                             <ul class="mb-0">
-                                <li>1 URL analysée = <strong>1 crédit</strong> (quota hebdomadaire)</li>
+                                <li data-i18n="help.quota_credit">1 URL analysée = <strong>1 crédit</strong></li>
+                                <li data-i18n="help.quota_sistrix">Sistrix : <strong>7 crédits API</strong> par analyse (3 endpoints)</li>
                             </ul>
-                            <span class="help-toggle-btn">▼ Voir plus</span>
                         </div>
                     </div>
                 </div>
@@ -1047,16 +1063,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <script>
 // --- Help panel collapse ---
-(function () {
-    var panel = document.querySelector('.config-help-panel');
-    var btn = panel ? panel.querySelector('.help-toggle-btn') : null;
-    if (panel && btn) {
-        btn.addEventListener('click', function () {
-            panel.classList.toggle('expanded');
-            btn.textContent = panel.classList.contains('expanded') ? '▲ Réduire' : '▼ Voir plus';
-        });
-    }
-})();
+function collapserHelpPanel() {
+    var panel = document.getElementById('helpPanel');
+    if (panel) panel.classList.add('help-hidden');
+}
+<?php if ($hasPost && !$error): ?>
+collapserHelpPanel();
+<?php endif; ?>
 </script>
 
 </body>
