@@ -79,14 +79,25 @@ $fetchInfo       = $view['fetchInfo'];
                             </button>
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-4" id="helpPanel">
                         <div class="config-help-panel">
-                            <div class="help-title" data-i18n="help.titre">Comment ça marche ?</div>
+                            <div class="help-title mb-2">
+                                <i class="bi bi-info-circle me-1"></i> Comment ça marche
+                            </div>
                             <ul>
-                                <li data-i18n="help.etape1">Entrez l'URL d'une page web publique</li>
-                                <li data-i18n="help.etape2">L'outil identifie la <strong>requête clé principale</strong></li>
-                                <li data-i18n="help.etape3">Diagnostic SEO complet avec recommandations</li>
+                                <li><strong>URL de la page</strong> : saisissez l'URL d'une page web à analyser.</li>
+                                <li><strong>Analyse sémantique</strong> : l'outil identifie le mot-clé principal détecté sur la page.</li>
+                                <li><strong>Diagnostic SEO</strong> : balises title/meta, structure Hn, densité de mots-clés, maillage interne.</li>
+                                <li><strong>Recommandations</strong> : suggestions d'optimisation concrètes et priorisées.</li>
                             </ul>
+                            <hr>
+                            <div class="help-title mb-2">
+                                <i class="bi bi-speedometer2 me-1"></i> Quota
+                            </div>
+                            <ul class="mb-0">
+                                <li>1 URL analysée = <strong>1 crédit</strong> (quota hebdomadaire)</li>
+                            </ul>
+                            <span class="help-toggle-btn">▼ Voir plus</span>
                         </div>
                     </div>
                 </div>
@@ -1033,6 +1044,20 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 <?php endif; ?>
+
+<script>
+// --- Help panel collapse ---
+(function () {
+    var panel = document.querySelector('.config-help-panel');
+    var btn = panel ? panel.querySelector('.help-toggle-btn') : null;
+    if (panel && btn) {
+        btn.addEventListener('click', function () {
+            panel.classList.toggle('expanded');
+            btn.textContent = panel.classList.contains('expanded') ? '▲ Réduire' : '▼ Voir plus';
+        });
+    }
+})();
+</script>
 
 </body>
 </html>
