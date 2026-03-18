@@ -412,15 +412,24 @@ function interroger_google_suggest(string $requete): array
     $url = 'https://suggestqueries.google.com/complete/search?client=firefox&q='
         . urlencode($requete) . '&hl=fr&gl=FR';
 
-    $contexte = stream_context_create([
-        'http' => [
-            'method'  => 'GET',
-            'header'  => 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'timeout' => 5,
-        ],
-    ]);
+    if (defined('PLATFORM_EMBEDDED') && class_exists('\\Platform\\Http\\ApiClient')) {
+        // Mode plateforme : client HTTP centralise
+        $client = new \Platform\Http\ApiClient('kwcible');
+        $reponseApi = $client->get($url);
+        $reponse = $reponseApi->estSucces() ? $reponseApi->body : false;
+    } else {
+        // Mode standalone : stream_context natif
+        $contexte = stream_context_create([
+            'http' => [
+                'method'  => 'GET',
+                'header'  => 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'timeout' => 5,
+            ],
+        ]);
 
-    $reponse = @file_get_contents($url, false, $contexte);
+        $reponse = @file_get_contents($url, false, $contexte);
+    }
+
     if ($reponse === false) {
         return [];
     }
