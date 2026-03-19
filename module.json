@@ -7,7 +7,7 @@
     "entry_point": "index.php",
     "sort_order": 10,
     "quota_mode": "url",
-    "default_quota": 100,
+    "default_quota": 500,
     "display_mode": "embedded",
     "env_keys": [
         "SISTRIX_API_KEY"
@@ -21,7 +21,5 @@
     "routes": [],
     "credits_par_analyse": 1,
     "units_per_credit": 50,
-    "unit_label": "URLs",
-    "daily_limit": 500,
     "periode_quota": "jour"
 }
