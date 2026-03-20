@@ -56,7 +56,7 @@ $fetchInfo       = $view['fetchInfo'];
     </div>
 </nav>
 
-<div class="container-lg pb-5">
+<div class="container-fluid px-lg-4 pb-5">
 
     <!-- ─── Config Card ─────────────────────────────────────────────────── -->
     <div class="card mb-4" id="configCard">

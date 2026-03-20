@@ -4,6 +4,7 @@
     "description": "Analyse sémantique SEO de pages web vs mot-clé cible",
     "version": "1.0.0",
     "icon": "bi-search",
+    "illustration": "illustration.svg",
     "entry_point": "index.php",
     "sort_order": 10,
     "quota_mode": "url",
