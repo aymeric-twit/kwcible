@@ -60,6 +60,11 @@ $fetchInfo       = $view['fetchInfo'];
 
     <!-- ─── Config Card ─────────────────────────────────────────────────── -->
     <div class="card mb-4" id="configCard">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold" data-i18n="form.titre_config"><i class="bi bi-gear me-2"></i>Configuration</h5>
+            <button type="button" class="config-toggle" data-bs-toggle="collapse" data-bs-target="#configBody" aria-expanded="true"><i class="bi bi-chevron-down"></i></button>
+        </div>
+        <div class="collapse show" id="configBody">
         <div class="card-body">
             <form method="POST" action="">
                 <div class="row g-3 align-items-end">
@@ -119,6 +124,7 @@ $fetchInfo       = $view['fetchInfo'];
                     </div>
                 </div>
             </form>
+        </div>
         </div>
     </div>
 

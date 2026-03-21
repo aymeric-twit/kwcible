@@ -9,6 +9,7 @@
     "sort_order": 10,
     "quota_mode": "url",
     "default_quota": 500,
+    "unite_label": "URLs",
     "display_mode": "embedded",
     "env_keys": [
         "SISTRIX_API_KEY"
