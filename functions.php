@@ -1771,20 +1771,20 @@ function generate_semantic_recommendations(array $keywords): array
     }
 
     if (!empty($underOptimized)) {
-        $lines = [];
+        $items = [];
         foreach (array_slice($underOptimized, 0, 5) as $item) {
-            $lines[] = sprintf(
-                '<strong>%s</strong> — ajouter dans : %s',
-                htmlspecialchars($item['term']),
-                implode(', ', $item['missing'])
-            );
+            $items[] = [
+                'type' => 'under',
+                'term' => $item['term'],
+                'zones' => implode(', ', $item['missing']),
+            ];
         }
         $recs[] = [
             'type'    => 'under',
             'icon'    => 'arrow-up',
             'title'   => 'Termes à renforcer',
             'message' => 'Ces termes importants ne sont présents que dans une seule zone. Placez-les dans davantage de zones stratégiques pour améliorer votre ICS.',
-            'items'   => $lines,
+            'items'   => $items,
         ];
     }
 
@@ -1799,20 +1799,20 @@ function generate_semantic_recommendations(array $keywords): array
     }
 
     if (!empty($overOptimized)) {
-        $lines = [];
+        $items = [];
         foreach (array_slice($overOptimized, 0, 5) as $item) {
-            $lines[] = sprintf(
-                '<strong>%s</strong> — densité actuelle : %.1f%% (trop élevée)',
-                htmlspecialchars($item['term']),
-                $item['density']
-            );
+            $items[] = [
+                'type' => 'over',
+                'term' => $item['term'],
+                'density' => round($item['density'], 1),
+            ];
         }
         $recs[] = [
             'type'    => 'over',
             'icon'    => 'arrow-down',
             'title'   => 'Termes à réduire',
             'message' => 'Ces termes sont trop répétés dans le contenu. Remplacez certaines occurrences par des synonymes ou des formulations alternatives pour baisser votre ISR.',
-            'items'   => $lines,
+            'items'   => $items,
         ];
     }
 
@@ -1846,6 +1846,8 @@ function generate_semantic_recommendations(array $keywords): array
                 'type'    => 'soseo',
                 'icon'    => 'target',
                 'title'   => 'Zones stratégiques à enrichir',
+                'message_key' => 'semrec.zones_enrichir_msg',
+                'message_params' => ['zones' => '<strong>' . implode('</strong>, <strong>', $weakest) . '</strong>'],
                 'message' => 'Les zones suivantes contiennent peu de termes importants : <strong>' . implode('</strong>, <strong>', $weakest) . '</strong>. Ajoutez-y vos mots-clés secondaires pour améliorer votre score ICS.',
                 'items'   => [],
             ];
@@ -1862,6 +1864,7 @@ function generate_semantic_recommendations(array $keywords): array
             'type'    => 'success',
             'icon'    => 'check',
             'title'   => 'Bonne optimisation',
+            'message_params' => ['optimal' => $optimalCount, 'total' => count($termDetails)],
             'message' => sprintf('%d termes sur %d sont correctement optimisés. Votre contenu présente un bon équilibre entre couverture sémantique et naturel.', $optimalCount, count($termDetails)),
             'items'   => [],
         ];
@@ -1921,7 +1924,8 @@ function generate_recommendations(array $parsed, array $diagnostic, string $prim
         $recs[] = [
             'type'    => 'h1',
             'label'   => 'H1 optimisé',
-            'current' => $h1Text ?: '(aucun)',
+            'current' => $h1Text ?: '',
+            'current_empty' => $h1Text === '',
             'proposed'=> $proposed,
             'reason'  => $h1Text === ''
                 ? 'Aucun H1 n\'est défini. Ajoutez un H1 contenant le mot-clé principal.'
@@ -1932,7 +1936,8 @@ function generate_recommendations(array $parsed, array $diagnostic, string $prim
     // Meta description
     if ($parsed['meta_description'] === '' || !str_contains(mb_strtolower($parsed['meta_description']), $kwLower)) {
         $kw = ucfirst($primaryKw);
-        if ($parsed['meta_description'] === '') {
+        $metaIsEmpty = $parsed['meta_description'] === '';
+        if ($metaIsEmpty) {
             $proposed = "Découvrez tout sur $kwLower. Guide complet et informations essentielles pour comprendre $kwLower en détail.";
         } else {
             $proposed = $kw . ' — ' . mb_substr($parsed['meta_description'], 0, 150 - mb_strlen($kw));
@@ -1940,15 +1945,21 @@ function generate_recommendations(array $parsed, array $diagnostic, string $prim
         if (mb_strlen($proposed) > 160) {
             $proposed = mb_substr($proposed, 0, 157) . '...';
         }
-        $recs[] = [
+        $recMeta = [
             'type'    => 'meta_description',
             'label'   => 'Meta description optimisée',
-            'current' => $parsed['meta_description'] ?: '(aucune)',
+            'current' => $parsed['meta_description'] ?: '',
+            'current_empty' => $metaIsEmpty,
             'proposed'=> $proposed,
-            'reason'  => $parsed['meta_description'] === ''
+            'reason'  => $metaIsEmpty
                 ? 'Aucune meta description définie. Elle aide au CTR dans les résultats de recherche.'
                 : 'La meta description ne mentionne pas le keyword principal.',
         ];
+        if ($metaIsEmpty) {
+            $recMeta['proposed_i18n'] = 'reco.meta_proposed_empty';
+            $recMeta['proposed_params'] = ['keyword' => $kwLower];
+        }
+        $recs[] = $recMeta;
     }
 
     // Angle SEO si décalage Title/H1
@@ -1962,7 +1973,10 @@ function generate_recommendations(array $parsed, array $diagnostic, string $prim
                 'type'    => 'angle',
                 'label'   => 'Angle SEO',
                 'current' => 'Décalage entre Title et H1',
+                'current_i18n' => 'reco.angle_current',
                 'proposed'=> "Aligner le Title et le H1 autour du même mot-clé principal « $primaryKw » pour renforcer le signal sémantique.",
+                'proposed_i18n' => 'reco.angle_proposed',
+                'proposed_params' => ['keyword' => $primaryKw],
                 'reason'  => 'Le Title et le H1 ciblent des thématiques différentes, ce qui dilue le signal SEO.',
             ];
         }
@@ -1973,7 +1987,8 @@ function generate_recommendations(array $parsed, array $diagnostic, string $prim
         $recs[] = [
             'type'    => 'content',
             'label'   => 'Enrichir le contenu',
-            'current' => sprintf('%d mots', $parsed['word_count']),
+            'current' => $parsed['word_count'],
+            'current_is_wordcount' => true,
             'proposed'=> 'Viser au minimum 300 mots pour un contenu de qualité, idéalement 800+ mots pour un article informatif.',
             'reason'  => 'Un contenu trop court limite les chances de positionnement sur des requêtes compétitives.',
         ];

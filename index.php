@@ -614,11 +614,28 @@ $fetchInfo       = $view['fetchInfo'];
                             </span>
                             <strong <?php if (isset($semrecTitleMap[$rec['title']])): ?>data-i18n="<?= $semrecTitleMap[$rec['title']] ?>"<?php endif; ?>><?= htmlspecialchars($rec['title']) ?></strong>
                         </div>
-                        <div class="sem-rec-message" <?php if (isset($semrecMsgMap[$rec['title']])): ?>data-i18n="<?= $semrecMsgMap[$rec['title']] ?>"<?php endif; ?>><?= $rec['message'] ?></div>
+                        <?php
+                        $msgI18nKey = $rec['message_key'] ?? ($semrecMsgMap[$rec['title']] ?? '');
+                        $msgI18nParams = $rec['message_params'] ?? null;
+                        ?>
+                        <div class="sem-rec-message"
+                            <?php if ($msgI18nKey): ?>
+                                data-i18n="<?= htmlspecialchars($msgI18nKey) ?>"
+                                <?php if ($msgI18nParams): ?>data-i18n-params='<?= htmlspecialchars(json_encode($msgI18nParams)) ?>'<?php endif; ?>
+                            <?php endif; ?>
+                        ><?= $rec['message'] ?></div>
                         <?php if (!empty($rec['items'])): ?>
                             <ul class="sem-rec-list">
                                 <?php foreach ($rec['items'] as $item): ?>
-                                    <li><?= $item ?></li>
+                                    <?php if (is_array($item)): ?>
+                                        <?php if ($item['type'] === 'under'): ?>
+                                            <li data-i18n="semrec.item_ajouter" data-i18n-params='<?= htmlspecialchars(json_encode(['term' => $item['term'], 'zones' => $item['zones']])) ?>'><strong><?= htmlspecialchars($item['term']) ?></strong> — ajouter dans : <?= htmlspecialchars($item['zones']) ?></li>
+                                        <?php elseif ($item['type'] === 'over'): ?>
+                                            <li data-i18n="semrec.item_densite" data-i18n-params='<?= htmlspecialchars(json_encode(['term' => $item['term'], 'density' => $item['density']])) ?>'><strong><?= htmlspecialchars($item['term']) ?></strong> — densité actuelle : <?= htmlspecialchars($item['density']) ?>% (trop élevée)</li>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <li><?= $item ?></li>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             </ul>
                         <?php endif; ?>
@@ -812,11 +829,29 @@ $fetchInfo       = $view['fetchInfo'];
                         <div class="rec-compare">
                             <div class="rec-current">
                                 <span class="rec-tag" data-i18n="reco.tag_actuel">Actuel</span>
-                                <?= htmlspecialchars($rec['current']) ?>
+                                <?php if (!empty($rec['current_is_wordcount'])): ?>
+                                    <span data-i18n="reco.mots" data-i18n-params='<?= htmlspecialchars(json_encode(['n' => $rec['current']])) ?>'><?= htmlspecialchars($rec['current']) ?> mots</span>
+                                <?php elseif (!empty($rec['current_empty'])): ?>
+                                    <?php
+                                    $emptyI18nKey = ($rec['type'] === 'meta_description') ? 'table.aucune_f' : 'table.aucun_m';
+                                    $emptyFallback = ($rec['type'] === 'meta_description') ? '(aucune)' : '(aucun)';
+                                    ?>
+                                    <span data-i18n="<?= $emptyI18nKey ?>"><?= $emptyFallback ?></span>
+                                <?php elseif (!empty($rec['current_i18n'])): ?>
+                                    <span data-i18n="<?= htmlspecialchars($rec['current_i18n']) ?>"><?= htmlspecialchars($rec['current']) ?></span>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($rec['current']) ?>
+                                <?php endif; ?>
                             </div>
                             <div class="rec-proposed">
                                 <span class="rec-tag" data-i18n="reco.tag_propose">Proposé</span>
-                                <?= htmlspecialchars($rec['proposed']) ?>
+                                <?php if (!empty($rec['proposed_i18n'])): ?>
+                                    <span data-i18n="<?= htmlspecialchars($rec['proposed_i18n']) ?>" <?php if (!empty($rec['proposed_params'])): ?>data-i18n-params='<?= htmlspecialchars(json_encode($rec['proposed_params'])) ?>'<?php endif; ?>><?= htmlspecialchars($rec['proposed']) ?></span>
+                                <?php elseif ($rec['type'] === 'content'): ?>
+                                    <span data-i18n="reco.contenu_proposed"><?= htmlspecialchars($rec['proposed']) ?></span>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($rec['proposed']) ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

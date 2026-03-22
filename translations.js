@@ -110,6 +110,9 @@ var TRANSLATIONS = {
         'semrec.bonne_optim_msg': '{optimal} termes sur {total} sont correctement optimisés. Votre contenu présente un bon équilibre entre couverture sémantique et naturel.',
         'semrec.ajouter_dans': 'ajouter dans :',
         'semrec.densite_actuelle': 'densité actuelle : {density}% (trop élevée)',
+        'semrec.item_ajouter': '<strong>{term}</strong> — ajouter dans : {zones}',
+        'semrec.item_densite': '<strong>{term}</strong> — densité actuelle : {density}% (trop élevée)',
+        'semrec.zones_enrichir_msg': 'Les zones suivantes contiennent peu de termes importants : {zones}. Ajoutez-y vos mots-clés secondaires pour améliorer votre score ICS.',
 
         // Diagnostic SEO
         'diag.titre': 'Diagnostic SEO',
@@ -187,7 +190,9 @@ var TRANSLATIONS = {
         'reco.h1_reason_kw': 'Le H1 actuel ne contient pas le mot-clé principal identifié.',
         'reco.meta_reason_absent': 'Aucune meta description définie. Elle aide au CTR dans les résultats de recherche.',
         'reco.meta_reason_kw': 'La meta description ne mentionne pas le keyword principal.',
+        'reco.meta_proposed_empty': 'Découvrez tout sur {keyword}. Guide complet et informations essentielles pour comprendre {keyword} en détail.',
         'reco.angle_current': 'Décalage entre Title et H1',
+        'reco.angle_proposed': 'Aligner le Title et le H1 autour du même mot-clé principal « {keyword} » pour renforcer le signal sémantique.',
         'reco.angle_reason': 'Le Title et le H1 ciblent des thématiques différentes, ce qui dilue le signal SEO.',
         'reco.contenu_reason': 'Un contenu trop court limite les chances de positionnement sur des requêtes compétitives.',
         'reco.contenu_proposed': 'Viser au minimum 300 mots pour un contenu de qualité, idéalement 800+ mots pour un article informatif.',
@@ -332,6 +337,9 @@ var TRANSLATIONS = {
         'semrec.bonne_optim_msg': '{optimal} out of {total} terms are properly optimized. Your content shows a good balance between semantic coverage and natural writing.',
         'semrec.ajouter_dans': 'add in:',
         'semrec.densite_actuelle': 'current density: {density}% (too high)',
+        'semrec.item_ajouter': '<strong>{term}</strong> — add in: {zones}',
+        'semrec.item_densite': '<strong>{term}</strong> — current density: {density}% (too high)',
+        'semrec.zones_enrichir_msg': 'The following zones contain few important terms: {zones}. Add your secondary keywords there to improve your SCI score.',
 
         // SEO Diagnostic
         'diag.titre': 'SEO Diagnostic',
@@ -409,7 +417,9 @@ var TRANSLATIONS = {
         'reco.h1_reason_kw': 'The current H1 does not contain the identified primary keyword.',
         'reco.meta_reason_absent': 'No meta description defined. It helps improve CTR in search results.',
         'reco.meta_reason_kw': 'The meta description does not mention the primary keyword.',
+        'reco.meta_proposed_empty': 'Discover everything about {keyword}. Complete guide and essential information to understand {keyword} in detail.',
         'reco.angle_current': 'Title / H1 mismatch',
+        'reco.angle_proposed': 'Align the Title and H1 around the same primary keyword "{keyword}" to strengthen the semantic signal.',
         'reco.angle_reason': 'The Title and H1 target different topics, which dilutes the SEO signal.',
         'reco.contenu_reason': 'Content that is too short limits ranking chances on competitive queries.',
         'reco.contenu_proposed': 'Aim for at least 300 words for quality content, ideally 800+ words for an informative article.',
