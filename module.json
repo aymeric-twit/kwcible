@@ -11,6 +11,7 @@
     "default_quota": 500,
     "unite_label": "URLs",
     "display_mode": "embedded",
+    "crawler_mode": "go",
     "env_keys": [
         "SISTRIX_API_KEY"
     ],

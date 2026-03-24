@@ -81,6 +81,34 @@ const INTENT_INFORMATIONAL = [
  */
 function fetch_page(string $url): array
 {
+    // Mode plateforme : utiliser WebClient (service Go, anti-blocage, logging)
+    if (defined('PLATFORM_EMBEDDED') && class_exists('\\Platform\\Http\\WebClient')) {
+        try {
+            $webClient = new \Platform\Http\WebClient('kwcible');
+            $reponse = $webClient->fetch($url);
+
+            if ($reponse->statusCode >= 400) {
+                return [
+                    'status'   => 'error',
+                    'html'     => '',
+                    'finalUrl' => $reponse->urlFinale,
+                    'httpCode' => $reponse->statusCode,
+                    'error'    => "Erreur HTTP {$reponse->statusCode}",
+                ];
+            }
+
+            return [
+                'status'   => 'ok',
+                'html'     => $reponse->body,
+                'finalUrl' => $reponse->urlFinale,
+                'httpCode' => $reponse->statusCode,
+            ];
+        } catch (\Throwable $e) {
+            // Fallback sur cURL standalone
+        }
+    }
+
+    // Mode standalone : cURL direct
     $ch = curl_init();
 
     curl_setopt_array($ch, [
@@ -90,7 +118,7 @@ function fetch_page(string $url): array
         CURLOPT_MAXREDIRS      => 10,
         CURLOPT_TIMEOUT        => 30,
         CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_ENCODING       => '',  // Accepte gzip, deflate, br
+        CURLOPT_ENCODING       => '',
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_HTTPHEADER     => [
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
