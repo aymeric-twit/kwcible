@@ -292,7 +292,7 @@ $fetchInfo       = $view['fetchInfo'];
                     <div class="kw-value">
                         <?= htmlspecialchars($keywords['primary_keyword']) ?>
                         <?php if (!empty($keywords['suggest_debug']) && $keywords['suggest_debug']['resultat'] === 'corrige'): ?>
-                            <span style="display:inline-block;font-size:0.65rem;background:var(--brand-gold-light);color:#b8860b;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;font-weight:600;letter-spacing:0.03em;" data-i18n="kw.suggest_corrige">SUGGEST CORRIGÉ</span>
+                            <span style="display:inline-block;font-size:0.65rem;background:var(--brand-gold-light);color:var(--brand-gold, #b8860b);padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;font-weight:600;letter-spacing:0.03em;" data-i18n="kw.suggest_corrige">SUGGEST CORRIGÉ</span>
                             <?php if (!empty($keywords['suggest_debug']['keyword_avant'])): ?>
                                 <span style="display:inline-block;font-size:0.65rem;color:#94a3b8;margin-left:4px;vertical-align:middle;" data-i18n="kw.etait" data-i18n-params='<?= htmlspecialchars(json_encode(['keyword' => $keywords['suggest_debug']['keyword_avant']])) ?>'>était : <?= htmlspecialchars($keywords['suggest_debug']['keyword_avant']) ?></span>
                             <?php endif; ?>
