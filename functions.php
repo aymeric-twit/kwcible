@@ -84,7 +84,7 @@ function fetch_page(string $url): array
     // Mode plateforme : utiliser WebClient (service Go, anti-blocage, logging)
     if (defined('PLATFORM_EMBEDDED') && class_exists('\\Platform\\Http\\WebClient')) {
         try {
-            $webClient = new \Platform\Http\WebClient('kwcible');
+            $webClient = \Platform\Http\WebClient::pourModule('kwcible');
             $reponse = $webClient->fetch($url);
 
             if ($reponse->statusCode >= 400) {
